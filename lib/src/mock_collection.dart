@@ -1,11 +1,10 @@
-// USE -->
+// USE --> 
  
 
 // IMPORTS ---
-import 'dart:async';
-import 'dart:math';
-
-import 'package:mockdb/mockdb.dart';
+import 'dart:async'; // async operations
+import 'package:mockdb/mockdb.dart'; // ~ exposing db class
+import 'package:uuid/uuid.dart'; // to create unique id
 
 
 
@@ -14,9 +13,9 @@ import 'package:mockdb/mockdb.dart';
 class MockCollection<T> {
 
   // PROPERTIES ---
-  final Map<String, MockRecord<T>> _store = {}; // DB object to hold record
+  final Map<String, MockRecord<T>> _store = {}; // ~ DB object to hold records
 
-
+  final _uuidGenerator = const Uuid(); // Instantiate the UUID generator
 
   final _controller = StreamController<List<MockRecord<T>>>.broadcast();
   
@@ -27,15 +26,16 @@ class MockCollection<T> {
 
   // METHODS ---
 
-  // Generate simple random ID
+  // ~ Generate simple random ID
   String _genId() {
-    return Random().nextInt(9999999).toString();
+    return _uuidGenerator.v4();
   }
 
-  /// Create new record
+  // ~ Create new record
   Future<MockRecord<T>> create(T data) {
     final id = _genId();
-    final record = MockRecord(id: id, data: data);
+    final createdAt = DateTime.now().toUtc();
+    final record = MockRecord(id: id, data: data, createdAt: createdAt);
     _store[id] = record;
     _controller.add(_store.values.toList());
      
@@ -44,12 +44,12 @@ class MockCollection<T> {
     return Future.value(record); 
   }
 
-  /// Get record by ID
+  // ~ Get record by ID
   Future<MockRecord<T>?> get(String id) {
     return Future.value(_store[id]);
   }
 
-  /// Update record
+  // ~ Update record
   Future<MockRecord<T>?> update(String id, T newData) {
     if (!_store.containsKey(id)) return Future.value(null);
 
@@ -59,33 +59,32 @@ class MockCollection<T> {
     return Future.value(updated);
   }
 
-  /// Delete record
+  // ~ Delete record
   Future<bool> delete(String id) {
     final removed = _store.remove(id);
     _controller.add(_store.values.toList());
     return Future.value(removed != null);
   }
 
-  /// List all records
+  //~  List all records
   Future<List<MockRecord<T>>> getAll() {
     return Future.value(_store.values.toList());
   }
 
 
-  // --------------------------------------------------
   // 👉 TEST METHOD — PRINT ALL RECORDS
-  // --------------------------------------------------
   void printTest() {
+    print("+ [ LOG ] PRINT TEST ---");
+
     if (_store.isEmpty) {
-      print("[MockCollection] (empty)");
+      print("+ [LOG] (mockCollection is empty)");
       return;
     }
 
-    print("===== MockCollection Records =====");
     for (final record in _store.values) {
       print("ID: ${record.id} | DATA: ${record.data}");
     }
-    print("==================================");
+    print("+ [LOG] end of printTest ---");
   }
 
 }
