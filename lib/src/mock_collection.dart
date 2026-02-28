@@ -1,28 +1,22 @@
-// USE --> 
- 
+// USE -->
 
 // IMPORTS ---
 import 'dart:async'; // async operations
 import 'package:mockdb/mockdb.dart'; // ~ exposing db class
 import 'package:uuid/uuid.dart'; // to create unique id
 
-
-
 // CLASS DEFINITION ---
 
 class MockCollection<T> {
-
   // PROPERTIES ---
   final Map<String, MockRecord<T>> _store = {}; // ~ DB object to hold records
 
   final _uuidGenerator = const Uuid(); // Instantiate the UUID generator
 
   final _controller = StreamController<List<MockRecord<T>>>.broadcast();
-  
 
   /// Stream for listeners
   Stream<List<MockRecord<T>>> get stream => _controller.stream;
-
 
   // METHODS ---
 
@@ -31,6 +25,7 @@ class MockCollection<T> {
     return _uuidGenerator.v4();
   }
 
+  // CREATE METHODS ---
   // ~ Create new record
   Future<MockRecord<T>> create(T data) {
     final id = _genId();
@@ -38,18 +33,25 @@ class MockCollection<T> {
     final record = MockRecord(id: id, data: data, createdAt: createdAt);
     _store[id] = record;
     _controller.add(_store.values.toList());
-     
-     printTest();
 
-    return Future.value(record); 
+    printTest();
+
+    return Future.value(record);
   }
 
-  // ~ Get record by ID
+  // READ METHODS ---
+
+  Future<List<MockRecord<T>>> getAll() {
+    // ~  List all records
+    return Future.value(_store.values.toList());
+  }
+
   Future<MockRecord<T>?> get(String id) {
+    // ~ Get record by ID
     return Future.value(_store[id]);
   }
 
-  // ~ Update record
+  // UPDATE METHODS ---
   Future<MockRecord<T>?> update(String id, T newData) {
     if (!_store.containsKey(id)) return Future.value(null);
 
@@ -59,20 +61,14 @@ class MockCollection<T> {
     return Future.value(updated);
   }
 
-  // ~ Delete record
+  // DELETE METHODS ---
   Future<bool> delete(String id) {
     final removed = _store.remove(id);
     _controller.add(_store.values.toList());
     return Future.value(removed != null);
   }
 
-  //~  List all records
-  Future<List<MockRecord<T>>> getAll() {
-    return Future.value(_store.values.toList());
-  }
-
-
-  // 👉 TEST METHOD — PRINT ALL RECORDS
+  // TEST METHOD — PRINT ALL RECORDS
   void printTest() {
     print("+ [ LOG ] PRINT TEST ---");
 
@@ -86,5 +82,4 @@ class MockCollection<T> {
     }
     print("+ [LOG] end of printTest ---");
   }
-
 }
