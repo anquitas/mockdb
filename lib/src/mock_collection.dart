@@ -34,7 +34,7 @@ class MockCollection<T> {
     _store[id] = record;
     _controller.add(_store.values.toList());
 
-    printTest();
+    // printTest();
 
     return Future.value(record);
   }
@@ -49,6 +49,14 @@ class MockCollection<T> {
   Future<MockRecord<T>?> get(String id) {
     // ~ Get record by ID
     return Future.value(_store[id]);
+  }
+
+  Future<List<MockRecord<T>>> search(bool Function(T data) criteria) { // ~ simple query
+    // We filter the internal map based on the 'data' field
+    final results = _store.values
+        .where((record) => criteria(record.data))
+        .toList();
+    return Future.value(results);
   }
 
   // UPDATE METHODS ---
