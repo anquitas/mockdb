@@ -1,5 +1,7 @@
 import 'package:mockdb/mockdb.dart';
 
+import 'test_obj.dart';
+
 void main() async {
   print('🚀 Starting MockDB Integration Tests...\n');
 
@@ -8,7 +10,8 @@ void main() async {
     // await testUpdateRecord();
     // await testDeleteRecord();
     // await testCollectionIsolation();
-    await testSimpleSearch();
+    // await testSimpleSearch();
+    testQueryResult();
     
     print('\n✅ All tests passed successfully!');
   } catch (e, stackTrace) {
@@ -113,3 +116,32 @@ Future<void> testSimpleSearch() async {
 
   print('  - Passed!');
 }
+
+
+
+
+Future<void> testQueryResult() async {
+  print('Running: testSimpleSearch...');
+
+  final db = MockDB.instance;
+  var testObj = TestObj.inc();
+  var testObj2 = TestObj.inc();
+  var testObj3 = TestObj.inc();
+  var testObj4 = TestObj.inc();
+
+  final collection = db.collection<TestObj>('testing');
+
+  await collection.create(testObj);
+  await collection.create(testObj2);
+  await collection.create(testObj3);
+  await collection.create(testObj4);
+  // var callback = (data) => data.num > 1;
+  var res = await collection.find();
+
+  print(res.data.length);
+  print(res.data[0]);
+  print((await collection.find((data) => data.num > 1)).data.length);
+}
+
+
+

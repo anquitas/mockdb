@@ -3,6 +3,7 @@
 // IMPORTS ---
 import 'dart:async'; // async operations
 import 'package:mockdb/mockdb.dart'; // ~ exposing db class
+import 'package:mockdb/src/mock_query_result.dart';
 import 'package:uuid/uuid.dart'; // to create unique id
 
 // CLASS DEFINITION ---
@@ -58,6 +59,20 @@ class MockCollection<T> {
         .toList();
     return Future.value(results);
   }
+
+
+  // Inside MockCollection<T>
+// Inside MockCollection<T>
+Future<MockQueryResult<T>> find([bool Function(T data)? criteria]) async {
+  // If criteria is null, we return 'true' for every item (Select All)
+  final filter = criteria ?? (data) => true;
+
+  final filtered = _store.values
+      .where((record) => filter(record.data))
+      .toList();
+
+  return MockQueryResult(filtered);
+}
 
   // UPDATE METHODS ---
   Future<MockRecord<T>?> update(String id, T newData) {
