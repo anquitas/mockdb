@@ -8,7 +8,9 @@ void main() async {
   try {
     // await testCreateRecord();
     // await testUpdateRecord();
-    await testDeleteRecord();
+    // await testDeleteRecord();
+    await testDeleteMany();
+
     // await testCollectionIsolation();
     // await testSimpleSearch();
     // testQueryResult();
@@ -82,3 +84,40 @@ Future<void> testDeleteRecord() async {
   print('  - Passed!');
 }
 
+Future<void> testDeleteMany() async {
+  print('Running: testDeleteMany...');
+  final collection = MockDB.instance.collection<String>('accounts');
+  
+  // 1. Reset
+  await collection.delete((_) => true);
+
+  // 2. Seed data with a pattern
+  await collection.create('USER_Oğuz');
+  await collection.create('USER_Gemini');
+  await collection.create('ADMIN_Root');
+  await collection.create('USER_Guest');
+  await collection.create('ADMIN_Dev');
+
+  print('Initial count: ${(await collection.find()).count}'); // Should be 5
+
+  // 3. Delete all that start with 'USER_'
+  final deletedResult = await collection.delete(
+    (data) => data.startsWith('USER_')
+  );
+
+  // 4. Verification
+  final remaining = await collection.find();
+  
+  print('Deleted count: ${deletedResult.count}'); // Should be 3
+  print('Remaining records: ${remaining.data}');   // Should be [ADMIN_Root, ADMIN_Dev]
+
+  // --- Assertions ---
+  assert(deletedResult.count == 3, 'Should have deleted exactly 3 users');
+  assert(remaining.count == 2, 'Should have 2 admins left');
+  
+  // Check that no 'USER_' strings remain
+  final hasUsers = remaining.data.any((name) => name.startsWith('USER_'));
+  assert(!hasUsers, 'There should be no records starting with USER_ left');
+
+  print('  - Passed!');
+}

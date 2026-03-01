@@ -147,6 +147,27 @@ class MockCollection<T> {
     }
   }
 
+  /// Removes ALL records that match the criteria.
+  Future<MockQueryResult<T>> delete(bool Function(T data) criteria) async {
+    // 1. Identify all matches first (to avoid mutating the map while iterating)
+    final targets = _store.entries
+        .where((entry) => criteria(entry.value.data))
+        .toList();
+
+    if (targets.isEmpty) return MockQueryResult([]);
+
+    // 2. Remove them from the store
+    for (var entry in targets) {
+      _store.remove(entry.key);
+    }
+
+    // 3. Update listeners
+    notify();
+
+    // 4. Return the list of what was deleted
+    return MockQueryResult(targets.map((e) => e.value).toList());
+  }
+
 
   // --- TEST METHOD — PRINT ALL RECORDS
   void printTest() {
