@@ -32,20 +32,28 @@ class MockCollection<T> {
 
   // --- CREATE METHODS ---
   // ~ Create new record
-  Future<MockRecord<T>> create(T data) {
+  // Future<MockRecord<T>> create(T data) {
+  //   final id = _genId();
+  //   final createdAt = DateTime.now().toUtc();
+  //   final record = MockRecord(id: id, data: data, createdAt: createdAt);
+  //   _store[id] = record;
+  //   _controller.add(_store.values.toList());
+
+  //   // printTest();
+
+  //   return Future.value(record);
+  // }
+
+  Future<MockRecord<T>> create(T data) async {
     final id = _genId();
     final createdAt = DateTime.now().toUtc();
     final record = MockRecord(id: id, data: data, createdAt: createdAt);
     _store[id] = record;
-    _controller.add(_store.values.toList());
-
-    // printTest();
-
-    return Future.value(record);
+    notify();
+    return record;
   }
 
-  // READ METHODS ---
-  
+  // --- READ METHODS ---
 
   Future<MockQueryResult<T>> findById(String id) async {
     final record = _store[id];
@@ -72,15 +80,18 @@ class MockCollection<T> {
     final updated = _store[id]!.copyWith(data: newData);
     _store[id] = updated;
     notify();
-    
+
     return MockQueryResult([updated]);
   }
 
-  Future<MockQueryResult<T>> updateOne(bool Function(T data) criteria, T newData) async {
+  Future<MockQueryResult<T>> updateOne(
+    bool Function(T data) criteria,
+    T newData,
+  ) async {
     try {
       // Find the first match
       final entry = _store.entries.firstWhere((e) => criteria(e.value.data));
-      
+
       // Use our updateById logic to handle the save and notify
       return await updateById(entry.key, newData);
     } catch (e) {
@@ -125,15 +136,14 @@ class MockCollection<T> {
   //   return Future.value(removed != null);
   // }
 
-
   Future<MockQueryResult<T>> deleteById(String id) async {
     final record = _store.remove(id);
-    
+
     if (record != null) {
       notify();
       return MockQueryResult([record]);
     }
-    
+
     return MockQueryResult([]);
   }
 
@@ -167,7 +177,6 @@ class MockCollection<T> {
     // 4. Return the list of what was deleted
     return MockQueryResult(targets.map((e) => e.value).toList());
   }
-
 
   // --- TEST METHOD — PRINT ALL RECORDS
   void printTest() {
