@@ -43,7 +43,9 @@ Future<void> testUpdateRecord() async {
   final users = MockDB.instance.collection<String>('users');
   
   final original = await users.create('Bob');
-  final updated = (await users.updateById(original.id, 'Bobby')).records[0];
+  var updated = (await users.updateById(original.id, 'moby')).records[0];
+  print(updated.data);
+  updated = (await users.updateOne((usr) => usr == "moby", 'Bobby')).records[0];
   print(updated.data);
 
   assert(updated?.data == 'Bobby', 'Data should be updated');

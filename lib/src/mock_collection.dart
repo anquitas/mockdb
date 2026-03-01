@@ -76,25 +76,15 @@ class MockCollection<T> {
     return MockQueryResult([updated]);
   }
 
-  Future<MockRecord<T>?> updateOne(
-    bool Function(T data) criteria,
-    T newData,
-  ) async {
+  Future<MockQueryResult<T>> updateOne(bool Function(T data) criteria, T newData) async {
     try {
-      // 1. Find the first record that matches the criteria
+      // Find the first match
       final entry = _store.entries.firstWhere((e) => criteria(e.value.data));
-
-      // 2. Create the updated record
-      final updated = entry.value.copyWith(data: newData);
-
-      // 3. Save and notify
-      _store[entry.key] = updated;
-      _controller.add(_store.values.toList());
-
-      return updated;
+      
+      // Use our updateById logic to handle the save and notify
+      return await updateById(entry.key, newData);
     } catch (e) {
-      // .firstWhere throws a StateError if no match is found
-      return null;
+      return MockQueryResult([]); // Return empty result if no match found
     }
   }
 
