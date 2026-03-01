@@ -11,7 +11,8 @@ void main() async {
     // await testDeleteRecord();
     // await testCollectionIsolation();
     // await testSimpleSearch();
-    testQueryResult();
+    // testQueryResult();
+    await testFindId();
     
     print('\n✅ All tests passed successfully!');
   } catch (e, stackTrace) {
@@ -58,7 +59,7 @@ Future<void> testDeleteRecord() async {
   
   final record = await users.create('Charlie');
   final deleted = await users.deleteById(record.id);
-  final found = await users.get(record.id);
+  final found = await users.findById(record.id);
 
   assert(deleted == true, 'Delete should return true');
   assert(found == null, 'Record should no longer exist');
@@ -121,7 +122,7 @@ Future<void> testSimpleSearch() async {
 
 
 Future<void> testQueryResult() async {
-  print('Running: testSimpleSearch...');
+  print('Running: testQueryResult...');
 
   final db = MockDB.instance;
   var testObj = TestObj.inc();
@@ -145,3 +146,19 @@ Future<void> testQueryResult() async {
 
 
 
+
+
+Future<void> testFindId() async {
+  print('Running: testFindId...');
+
+  final db = MockDB.instance;
+
+  var testList = TestObj.generate(5);
+
+  var testCollection = db.collection<TestObj>('testCollection');
+  var testObj = await testCollection.create(testList[1]);
+  var testObj2 = await testCollection.create(testList[2]);
+  var testObj3 = await testCollection.create(testList[3]);
+  var id = testObj2.id;
+  print((await testCollection.findById(id)).data);
+}

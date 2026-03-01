@@ -50,9 +50,11 @@ class MockCollection<T> {
     return Future.value(_store.values.toList());
   }
 
-  Future<MockRecord<T>?> get(String id) {
-    // ~ Get record by ID
-    return Future.value(_store[id]);
+  
+
+  Future<MockQueryResult<T>> findById(String id) async {
+    final record = _store[id];
+    return MockQueryResult(record != null ? [record] : []);
   }
 
   Future<List<MockRecord<T>>> search(bool Function(T data) criteria) {
