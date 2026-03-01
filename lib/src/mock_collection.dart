@@ -137,6 +137,16 @@ class MockCollection<T> {
     return MockQueryResult([]);
   }
 
+  /// Removes the FIRST record that matches the criteria and then stops.
+  Future<MockQueryResult<T>> deleteOne(bool Function(T data) criteria) async {
+    try {
+      final entry = _store.entries.firstWhere((e) => criteria(e.value.data));
+      return await deleteById(entry.key);
+    } catch (e) {
+      return MockQueryResult([]);
+    }
+  }
+
 
   // --- TEST METHOD — PRINT ALL RECORDS
   void printTest() {

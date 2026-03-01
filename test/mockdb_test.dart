@@ -59,13 +59,23 @@ Future<void> testUpdateRecord() async {
 Future<void> testDeleteRecord() async {
   print('Running: testDeleteRecord...');
   final users = MockDB.instance.collection<String>('users');
+  final rec1 = await users.create('Bob');
+  final rec2 = await users.create('Alice');
+  final rec3 = await users.create('beyta');
+
+
   
   final record = await users.create('Charlie');
   final deleted = (await users.deleteById(record.id)).records[0].data;
   print("deleted: " +deleted);
   final found = (await users.findById(record.id)).records;
   print("found: $found");
+  final del2 = (await users.deleteOne((usr) => usr == "Alice")).records[0].data;
+  print("deleted2: " +del2);
+  final found2 = (await users.findById(record.id)).records;
+  print("found2: $found");
 
+  print((await users.find()).data);
   assert(deleted == true, 'Delete should return true');
   assert(found == null, 'Record should no longer exist');
   
