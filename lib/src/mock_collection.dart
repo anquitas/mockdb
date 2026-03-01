@@ -23,6 +23,7 @@ class MockCollection<T> {
   Stream<List<MockRecord<T>>> get stream => _controller.stream;
 
   // METHODS ---
+  void notify() => _controller.add(_store.values.toList());
 
   // ~ Generate simple random ID
   String _genId() {
@@ -44,12 +45,6 @@ class MockCollection<T> {
   }
 
   // READ METHODS ---
-
-  Future<List<MockRecord<T>>> getAll() {
-    // ~  List all records
-    return Future.value(_store.values.toList());
-  }
-
   
 
   Future<MockQueryResult<T>> findById(String id) async {
@@ -57,17 +52,6 @@ class MockCollection<T> {
     return MockQueryResult(record != null ? [record] : []);
   }
 
-  Future<List<MockRecord<T>>> search(bool Function(T data) criteria) {
-    // ~ simple query
-    // We filter the internal map based on the 'data' field
-    final results = _store.values
-        .where((record) => criteria(record.data))
-        .toList();
-    return Future.value(results);
-  }
-
-  // Inside MockCollection<T>
-  // Inside MockCollection<T>
   Future<MockQueryResult<T>> find([bool Function(T data)? criteria]) async {
     // If criteria is null, we return 'true' for every item (Select All)
     final filter = criteria ?? (data) => true;
@@ -80,13 +64,16 @@ class MockCollection<T> {
   }
 
   // --- UPDATE METHODS ---
-  Future<MockRecord<T>?> updateById(String id, T newData) {
-    if (!_store.containsKey(id)) return Future.value(null);
+  Future<MockQueryResult<T>> updateById(String id, T newData) async {
+    if (!_store.containsKey(id)) {
+      return MockQueryResult([]); // Return empty result if ID missing
+    }
 
     final updated = _store[id]!.copyWith(data: newData);
     _store[id] = updated;
-    _controller.add(_store.values.toList());
-    return Future.value(updated);
+    notify();
+    
+    return MockQueryResult([updated]);
   }
 
   Future<MockRecord<T>?> updateOne(
