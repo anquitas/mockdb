@@ -42,7 +42,7 @@ Future<void> testUpdateRecord() async {
   final users = MockDB.instance.collection<String>('users');
   
   final original = await users.create('Bob');
-  final updated = await users.update(original.id, 'Bobby');
+  final updated = await users.updateById(original.id, 'Bobby');
 
   assert(updated?.data == 'Bobby', 'Data should be updated');
   assert(updated?.id == original.id, 'ID should remain the same');
@@ -57,7 +57,7 @@ Future<void> testDeleteRecord() async {
   final users = MockDB.instance.collection<String>('users');
   
   final record = await users.create('Charlie');
-  final deleted = await users.delete(record.id);
+  final deleted = await users.deleteById(record.id);
   final found = await users.get(record.id);
 
   assert(deleted == true, 'Delete should return true');
