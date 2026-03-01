@@ -119,11 +119,24 @@ class MockCollection<T> {
   }
 
   // --- DELETE METHODS ---
-  Future<bool> deleteById(String id) {
-    final removed = _store.remove(id);
-    _controller.add(_store.values.toList());
-    return Future.value(removed != null);
+  // Future<bool> deleteById(String id) {
+  //   final removed = _store.remove(id);
+  //   _controller.add(_store.values.toList());
+  //   return Future.value(removed != null);
+  // }
+
+
+  Future<MockQueryResult<T>> deleteById(String id) async {
+    final record = _store.remove(id);
+    
+    if (record != null) {
+      notify();
+      return MockQueryResult([record]);
+    }
+    
+    return MockQueryResult([]);
   }
+
 
   // --- TEST METHOD — PRINT ALL RECORDS
   void printTest() {

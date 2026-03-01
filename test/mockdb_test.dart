@@ -7,8 +7,8 @@ void main() async {
 
   try {
     // await testCreateRecord();
-    await testUpdateRecord();
-    // await testDeleteRecord();
+    // await testUpdateRecord();
+    await testDeleteRecord();
     // await testCollectionIsolation();
     // await testSimpleSearch();
     // testQueryResult();
@@ -61,8 +61,10 @@ Future<void> testDeleteRecord() async {
   final users = MockDB.instance.collection<String>('users');
   
   final record = await users.create('Charlie');
-  final deleted = await users.deleteById(record.id);
-  final found = await users.findById(record.id);
+  final deleted = (await users.deleteById(record.id)).records[0].data;
+  print("deleted: " +deleted);
+  final found = (await users.findById(record.id)).records;
+  print("found: $found");
 
   assert(deleted == true, 'Delete should return true');
   assert(found == null, 'Record should no longer exist');
