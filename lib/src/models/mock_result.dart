@@ -6,7 +6,7 @@ import 'mock_record.dart';
 
 // --- CLASS DEFINITION ---
 
-class MockQueryResult<T> {
+class MockResult<T> {
   // --- PROPS ---
 
   // TODO info about collection, request, response like time, error, status etc
@@ -52,9 +52,9 @@ class MockQueryResult<T> {
 
   // --- CONSTRUCTORS ---
 
-  MockQueryResult(this.records); // ~ standart constructor
+  MockResult(this.records); // ~ standart constructor
 
-  MockQueryResult.empty() : records = []; // ~ empty data constructor
+  MockResult.empty() : records = []; // ~ empty data constructor
 
   // --- METHODS ---
 
