@@ -1,6 +1,6 @@
 // * USE -- a wrapper around data, data item for collections in DBS
 
-// --- IMPORTS ---
+// // --- IMPORTS ---
 
 // --- CLASS DEFINITION ---
 
@@ -9,7 +9,7 @@ class MockRecord<T> {
 
   final String id;
   final T data;
-  final DateTime createrAt;
+  final DateTime createdAt;
   final DateTime updatedAt;
 
   // --- CONSTRUCTORS ---
@@ -17,7 +17,7 @@ class MockRecord<T> {
   MockRecord({
     required this.id,
     required this.data,
-    required this.createrAt,
+    required this.createdAt,
     required this.updatedAt,
   });
 
@@ -28,7 +28,7 @@ class MockRecord<T> {
     return MockRecord<T>(
       id: id,
       data: data ?? this.data,
-      createrAt: createrAt,
+      createdAt: createdAt,
       updatedAt: updatedAt,
     );
   }
