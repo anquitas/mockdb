@@ -24,7 +24,7 @@ class MockRecord<T> {
   // --- METHODS ---
 
   // allow for easy updating of data while keeping same ID.
-  MockRecord<T> copyWith({T? data}) {
+  MockRecord<T> copyWith({T? data, required DateTime updatedAt}) {
     return MockRecord<T>(
       id: id,
       data: data ?? this.data,
