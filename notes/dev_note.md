@@ -22,3 +22,8 @@ or maybe seperate project into too
 also this data store idea can be converted to handle appwide state
 
 
+#### CRUD METHODS
+`create`
+`findById`, `find`
+`updateById`, `updateOne`, `updateMany`
+`deleteById`, `deleteOne`, `deleteMany`
