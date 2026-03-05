@@ -2,38 +2,39 @@
 
 
 // IMPORTS ---
-import 'package:mockdb/mockdb.dart';
+// import 'package:mockdb/mockdb.dart';
+
+// lib/src/mock_db.dart
+// --- IMPORTS ---
+import 'collection/mock_collection.dart';
 
 
-
-
-// CLASS DEFINITION ---
+// --- CLASS DEFINITION ---
 
 class MockDB {
   
-
-  // SINGLETON INSTANCE --- 
+  // --- SINGLETON INSTANCE --- 
   static final MockDB instance = MockDB._internal();
 
 
-  // CONSTRUCTORS ---
-  MockDB._internal();
+  // --- CONSTRUCTORS ---
+  MockDB._internal(); // ~ private constructor
 
 
-  // DATABASE AREA --- 
-  final Map<String, MockCollection> _collections = {};
+  // --- DATABASE AREA --- 
+  final Map<String, MockCollection<dynamic>> _collections = {};
 
 
-
-  // either returns a collection or creates if it does not exists
+  // --- METHODS ---
+  // ~ either returns a collection or creates if it does not exists
   MockCollection<T> collection<T>(String name) {
 
     if (!_collections.containsKey(name)) {
-      _collections[name] = MockCollection<T>();
+      _collections[name] = MockCollection<T>(name);
     }
     return _collections[name] as MockCollection<T>;
 
-  } // Me: collection
+  } // ~ MockCollection()
 
 
 } // class
