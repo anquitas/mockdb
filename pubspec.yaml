@@ -2,7 +2,7 @@ name: mockdb
 description: "A simple in-memory mock database for Flutter and Dart apps."
 
 version: 0.0.1
-homepage: 
+homepage: https://github.com/anquitas/mockdb
 # github page goes here
 
 environment:

@@ -22,6 +22,7 @@ class MockResult<T> {
 
   // true if records are empty
   bool get isEmpty => records.isEmpty;
+  bool get isNotEmpty => records.isNotEmpty;
 
   // ~ DATA GETTERS
 

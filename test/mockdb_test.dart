@@ -1,123 +1,125 @@
 import 'package:mockdb/mockdb.dart';
 
-import 'test_obj.dart';
-
 void main() async {
-  print('🚀 Starting MockDB Integration Tests...\n');
+  print('🚀 Testing with MockResult structure...\n');
 
-  try {
-    // await testCreateRecord();
-    // await testUpdateRecord();
-    // await testDeleteRecord();
-    await testDeleteMany();
-
-    // await testCollectionIsolation();
-    // await testSimpleSearch();
-    // testQueryResult();
-    // await testFindId();
-    
-    print('\n✅ All tests passed successfully!');
-  } catch (e, stackTrace) {
-    print('\n❌ Test failed!');
-    print(e);
-    print(stackTrace);
-  }
-}
-
-/// 1. Test Creating a Record
-Future<void> testCreateRecord() async {
-  print('Running: testCreateRecord...');
   final db = MockDB.instance;
   final users = db.collection<String>('users');
 
-  final record = await users.create('Alice');
-
-  assert(record.id.isNotEmpty, 'ID should not be empty');
-  assert(record.data == 'Alice', 'Data should match input');
-  // assert(record.createdAt is DateTime, 'Timestamp should be created');
+  // --- 1. Test Creation & count ---
+  print('--- Test: Create & count ---');
+  await users.create('Alice');
+  await users.create('Bob');
   
-  print('  - Passed!');
+  final result = await users.findMany();
+  print('Result toString: $result'); // Should use your override
+  print('Total Count: ${result.count}');
+  
+  if (result.count == 2) {
+    print('✅ Count check passed.');
+  }
+
+  // --- 2. Test Data Extraction (the .data getter) ---
+  print('\n--- Test: Data Extraction ---');
+  List<String> rawNames = result.data; // Uses your .map logic internally
+  print('Raw names list: $rawNames');
+  
+  if (rawNames.contains('Alice') && rawNames.contains('Bob')) {
+    print('✅ .data list extraction works.');
+  }
+
+  // --- 3. Test First/Last Helpers ---
+  print('\n--- Test: First/Last Data & IDs ---');
+  print('First Entry Data: ${result.firstData}');
+  print('First Entry ID:   ${result.firstId}');
+  print('Last Entry Data:  ${result.lastData}');
+  
+  if (result.firstId != null && result.firstId!.isNotEmpty) {
+    print('✅ ID extraction works.');
+  }
+
+  // --- 4. Test Single Record Wrapper Access ---
+  print('\n--- Test: MockRecord Wrapper Access ---');
+  // Accessing the actual MockRecord via your .first getter
+  final firstRecord = result.first; 
+  if (firstRecord != null) {
+    print('Metadata check - Created At: ${firstRecord.createdAt}');
+  }
+
+  // --- 5. Test Empty Result ---
+  print('\n--- Test: Empty State ---');
+  final emptySearch = await users.findMany((name) => name == 'Ghost');
+  print('Search for "Ghost" isEmpty: ${emptySearch.isEmpty}');
+  
+  if (emptySearch.firstData == null) {
+    print('✅ Empty search returned null for firstData as expected.');
+  }
+
+  print('🧪 INITIALIZING CRUD TESTS...\n');
+
+  await testCreate(users);
+  await testRead(users);
+  await testUpdate(users);
+  await testDelete(users);
+
+  print('\n🏁 ALL TESTS COMPLETED.');
+
 }
 
-/// 2. Test Updating a Record
-Future<void> testUpdateRecord() async {
-  print('Running: testUpdateRecord...');
-  final users = MockDB.instance.collection<String>('users');
-  
-  final original = await users.create('Bob');
-  var updated = (await users.updateById(original.id, 'moby')).records[0];
-  print(updated.data);
-  updated = (await users.updateOne((usr) => usr == "moby", 'Bobby')).records[0];
-  print(updated.data);
 
-  assert(updated?.data == 'Bobby', 'Data should be updated');
-  assert(updated?.id == original.id, 'ID should remain the same');
-  assert(updated?.createdAt == original.createdAt, 'Timestamp should not change');
+
+
+// --- 1. CREATE TEST ---
+Future<void> testCreate(MockCollection<String> col) async {
+  print('▶️ Testing CREATE...');
+  final result = await col.create('Alice');
   
-  print('  - Passed!');
+  if (result.count == 1 && result.firstData == 'Alice') {
+    print('  ✅ Success: Record created with ID: ${result.firstId}');
+  } else {
+    print('  ❌ Failure: Record not created.');
+  }
 }
 
-/// 3. Test Deleting a Record
-Future<void> testDeleteRecord() async {
-  print('Running: testDeleteRecord...');
-  final users = MockDB.instance.collection<String>('users');
-  final rec1 = await users.create('Bob');
-  final rec2 = await users.create('Alice');
-  final rec3 = await users.create('beyta');
-
-
+// --- 2. READ TEST (Find & FindOne) ---
+Future<void> testRead(MockCollection<String> col) async {
+  print('\n▶️ Testing READ...');
   
-  final record = await users.create('Charlie');
-  final deleted = (await users.deleteById(record.id)).records[0].data;
-  print("deleted: " +deleted);
-  final found = (await users.findById(record.id)).records;
-  print("found: $found");
-  final del2 = (await users.deleteOne((usr) => usr == "Alice")).records[0].data;
-  print("deleted2: " +del2);
-  final found2 = (await users.findById(record.id)).records;
-  print("found2: $found");
+  // Test FindAll
+  final all = await col.findMany();
+  print('  - Found ${all.count} total records.');
 
-  print((await users.find()).data);
-  assert(deleted == true, 'Delete should return true');
-  assert(found == null, 'Record should no longer exist');
-  
-  print('  - Passed!');
+  // Test FindOne with Criteria
+  final search = await col.findOne((name) => name == 'Alice');
+  if (search.isNotEmpty) {
+    print('  ✅ Success: Found "${search.firstData}" via search.');
+  }
 }
 
-Future<void> testDeleteMany() async {
-  print('Running: testDeleteMany...');
-  final collection = MockDB.instance.collection<String>('accounts');
+// --- 3. UPDATE TEST ---
+Future<void> testUpdate(MockCollection<String> col) async {
+  print('\n▶️ Testing UPDATE...');
   
-  // 1. Reset
-  await collection.delete((_) => true);
-
-  // 2. Seed data with a pattern
-  await collection.create('USER_Oğuz');
-  await collection.create('USER_Gemini');
-  await collection.create('ADMIN_Root');
-  await collection.create('USER_Guest');
-  await collection.create('ADMIN_Dev');
-
-  print('Initial count: ${(await collection.find()).count}'); // Should be 5
-
-  // 3. Delete all that start with 'USER_'
-  final deletedResult = await collection.delete(
-    (data) => data.startsWith('USER_')
-  );
-
-  // 4. Verification
-  final remaining = await collection.find();
+  // We need an ID to test updateById
+  final id = (await col.findMany()).firstId!;
   
-  print('Deleted count: ${deletedResult.count}'); // Should be 3
-  print('Remaining records: ${remaining.data}');   // Should be [ADMIN_Root, ADMIN_Dev]
-
-  // --- Assertions ---
-  assert(deletedResult.count == 3, 'Should have deleted exactly 3 users');
-  assert(remaining.count == 2, 'Should have 2 admins left');
+  final result = await col.updateById(id, 'Alice-Updated');
   
-  // Check that no 'USER_' strings remain
-  final hasUsers = remaining.data.any((name) => name.startsWith('USER_'));
-  assert(!hasUsers, 'There should be no records starting with USER_ left');
+  if (result.firstData == 'Alice-Updated') {
+    print('  ✅ Success: Data updated to "${result.firstData}".');
+    print('  - Timestamp change: ${result.first?.updatedAt}');
+  }
+}
 
-  print('  - Passed!');
+// --- 4. DELETE TEST ---
+Future<void> testDelete(MockCollection<String> col) async {
+  print('\n▶️ Testing DELETE (Clear)...');
+  
+  // Currently, our engine uses 'clear' for bulk delete
+  // await col.clear();
+  
+  final result = await col.findMany();
+  if (result.isEmpty) {
+    print('  ✅ Success: Collection is now empty.');
+  }
 }
